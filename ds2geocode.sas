@@ -1,6 +1,12 @@
-libname bcplab "c:\workshop\git\geocodebcp"; 
-filename bcplab "c:\workshop\git\geocodebcp\bcplab.txt" encoding='utf-8'; 
-data bcp_lab; 
+%let path=c:\workshop\git\geocodebcp\geocodebcplab;
+%let apikey=ad5571ba69a84878b0a0f43d8e338ed4;
+%let inputdsn=bcplab.bcp_lab; 
+%let outputdsn=bcplab.bcp_lab_geocoded;
+
+/*Reading bcplab address information from a ; delimited csv file*/
+libname bcplab "&path"; 
+filename bcplab "&path\bcplab.txt" encoding='utf-8'; 
+data bcplab.bcp_lab; 
 infile bcplab dlm=';' dsd; 
 input bcp_name:$32. country_name :$32. country_2_CHAR:$2. POSTAL_CODE: $20. CITY :$50.
 STREET_AND_NUMBER :$50. REFNO :$8.; 
@@ -11,6 +17,7 @@ run;
 http://blogs.sas.com/content/sastraining/2015/01/17/jedi-sas-tricks-ds2-apis-get-the-data-you-are-looking-for/
 */
 
+/*For Testing geoapi*/
 
 proc ds2 ;
     data _null_;
@@ -42,7 +49,7 @@ proc ds2 ;
 quit;
 
 proc ds2 ;
-    data bcplab.BCP_LAB_GEOCODED/overwrite=yes;
+    data &outputdsn /overwrite=yes;
 	  dcl package logger putlog();
       dcl varchar(32767) character set utf8 url response;
 	  dcl double latitude longitude; 
@@ -62,10 +69,12 @@ proc ds2 ;
       method run();
  		 dcl integer poslon poslat;
          dcl varchar(32767) text;
-          set work.bcp_lab; 
-		   text=catx(' ',street_and_number,city,postal_code, country_name);
+		 dcl varchar(100) apikey; 
+		 apikey=%tslit(&apikey); 
+		 set &inputdsn; 
+		 text=catx(' ',street_and_number,city,postal_code, country_name);
         
-            url=cats('https://api.geoapify.com/v1/geocode/search?text=',text,'&apiKey=ad5571ba69a84878b0a0f43d8e338ed4');
+            url=cats('https://api.geoapify.com/v1/geocode/search?text=',text,'&apiKey=',apikey);
             GetResponse(url);
 			put;
             putlog.log('N', URL);
