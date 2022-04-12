@@ -53,6 +53,8 @@ proc ds2 ;
 	  dcl package logger putlog();
       dcl varchar(32767) character set utf8 url response;
 	  dcl double latitude longitude; 
+	  dcl varchar(30) location_type; 
+	  dcl varchar(100) street housenumber; 
       drop url response;
      
       
@@ -67,14 +69,39 @@ proc ds2 ;
          webQuery.getResponseBodyAsString(response, rc);
       end;
       method run();
- 		 dcl integer poslon poslat;
+ 		 dcl integer poslon poslat numloc;
+		 
          dcl varchar(32767) text;
 		 dcl varchar(100) apikey; 
 		 apikey=%tslit(&apikey); 
 		 set &inputdsn; 
-		 text=catx(' ',street_and_number,city,postal_code, country_name);
-        
-            url=cats('https://api.geoapify.com/v1/geocode/search?text=',text,'&apiKey=',apikey);
+		 /*check if house number is found*/
+		 numloc=anydigit(street_and_number); 
+		 if numloc>0 then street=substr(street_and_number,1,numloc-1); 
+		 if numloc>0 then housenumber=substr(street_and_number,numloc);
+         /*check location type: country, city, postcode, street, amenity*/
+		 if street ne ' ' and numloc>0 then location_type='amenity'; 
+         else if street ne ' ' and numloc=0 then location_type='street'; 
+		 else if street =' ' and postal_code ne ' ' then location_type='postcode'; 
+		 else if city ne ' ' then location_type='city'; 
+		 else if city =' ' and country_name ne ' ' then location_type='country'; 
+ 
+	/*correct swedish customs office in Norway*/
+		if substr(postal_code,1,1)='N' then country_lookup='Norway';
+		else country_lookup=country_name; 
+
+	  /*Structured Address Search with name, street, housenumber, postcode, city, country */
+	  /* text=cats(street_and_number,',',city,postal_code,',', country_name);
+         url=cats('https://api.geoapify.com/v1/geocode/search?name=',bcp_name,
+					'street=',street,
+					'housenumber=',housenumber,
+					'postcode=',postal_code,
+					'city=',city,
+					'country=',country_name,
+					'&apiKey=',apikey);*/
+      /*Free Text Search for address*/
+		 text=cats(street_and_number,',',city,' ',postal_code,',', country_lookup);
+         url=cats('https://api.geoapify.com/v1/geocode/search?text=',text,'&apiKey=',apikey);
             GetResponse(url);
 			put;
             putlog.log('N', URL);
