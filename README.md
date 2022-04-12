@@ -14,3 +14,4 @@ The JSON Respons is then parsed to retrieve Latitude and Longitude of the addres
 - (use CTRL+ALT+P to open the report debugger and import the report definition)
 - bcp_lab_geocoded.sas7bdat is the dataset with 12 geocoded customs offices. You can use it as an input to a Visual Analytics Report. 
 - Create new Geography Data Items using latitude and longitude from the dataset.
+![Screenshot]customsreport.png
