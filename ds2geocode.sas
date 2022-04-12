@@ -1,11 +1,11 @@
-%let path=c:\workshop\git\geocodebcp\geocodebcplab;
+%let path=/greenmonthly-export/ssemonthly/homes/paul.van.mol@sas.com/geocodebcplab;
 %let apikey=ad5571ba69a84878b0a0f43d8e338ed4;
 %let inputdsn=bcplab.bcp_lab; 
 %let outputdsn=bcplab.bcp_lab_geocoded;
 
 /*Reading bcplab address information from a ; delimited csv file*/
 libname bcplab "&path"; 
-filename bcplab "&path\bcplab.txt" encoding='utf-8'; 
+filename bcplab "&path/bcplab.txt" encoding='utf-8'; 
 data bcplab.bcp_lab; 
 infile bcplab dlm=';' dsd; 
 input bcp_name:$32. country_name :$32. country_2_CHAR:$2. POSTAL_CODE: $20. CITY :$50.
